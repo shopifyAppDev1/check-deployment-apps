@@ -1,0 +1,119 @@
+
+<script src="//unpkg.com/alpinejs" defer></script>
+<!-- announcement-bar.liquid -->
+<div x-data="announcementBar()" class="announcement-bar">
+  <div class="container">
+    <h1 x-text="data.title"></h1>
+    <button @click="buttonClicked()" x-text="data.buttonTitle"></button>
+  </div>
+</div>
+
+<script>
+  function announcementBar() {
+    return {
+      data: {
+        title: "{{ settings.title | escape }}",         // Use escape to prevent Liquid parsing issues
+        buttonTitle: "{{ settings.buttonTitle | escape }}"
+      },
+      async fetchData() {
+        try {
+          const apiUrl = `https://registrar-volume-cds-village.trycloudflare.com/api/announcement`;
+          console.log('API URL:', apiUrl);
+
+          const response = await fetch(apiUrl);
+          console.log('API Response Status:', response.status);
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch data');
+          }
+
+          const result = await response.json();
+          console.log('API Response Data:', result);
+
+          // Safeguard against null or undefined data
+          this.data.title = result?.announmentData?.title ?? this.result?.announmentData?.title;
+          this.data.buttonTitle = result?.announmentData.buttonTitle ?? this.announmentData.data.buttonTitle;
+        } catch (error) {
+          console.error('Failed to fetch data:', error);
+        }
+      },
+      buttonClicked() {
+        alert('Button clicked!');
+      },
+      init() {
+        this.fetchData();  // Trigger data fetch when the component initializes
+      }
+    }
+  }
+</script>
+
+
+<style>
+  .announcement-bar {
+    background-color: #f8f8f8;
+    padding: 10px;
+    text-align: center;
+    position: fixed; /* Keeps the bar at the top */
+    top: 0; /* Positions it at the top of the page */
+    width: 100%; /* Makes the bar span the full width of the page */
+    z-index: 1000; /* Ensures it appears above other content */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+    border-radius: 0; /* Removes the border-radius to make it look like a bar */
+    height: 100px;
+    margin-button: 120px;
+  }
+
+  .announcement-bar .container {
+    max-width: 1200px; /* Limits the width of the content */
+    margin: 0 auto; /* Centers the content */
+    display: flex; /* Allows for flexible alignment */
+    justify-content: space-between; /* Spreads out the elements */
+    align-items: center; /* Vertically centers the elements */
+  }
+
+  .announcement-bar h1 {
+    font-size: 18px;
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    flex: 1; /* Allows the title to take up available space */
+    text-align: left; /* Aligns the title to the left */
+  }
+
+  .announcement-bar button {
+    padding: 8px 16px;
+    background-color: #0073e6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px; /* Adds rounded corners to the button */
+    margin-left: 20px; /* Adds space between the button and the text */
+  }
+  .section-header.shopify-section-group-header-group {
+    z-index: 3;
+    margin-top: 109px;
+}
+</style>
+
+
+
+
+
+
+{% schema %}
+    {
+        "name" : "announcement bar",
+        "target" : "body",
+        "settings":[
+            {
+                "type" : "text",
+                "id"   : "title",
+                "label" : "Announcement Title",
+                "default" : "welcome to our store"
+            }
+        ]
+    }
+
+{% endschema %}
+
+
+
